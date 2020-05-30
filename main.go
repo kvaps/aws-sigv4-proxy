@@ -1,18 +1,19 @@
 package main
 
 import (
-	"net/http"
+	"github.com/aws/aws-sdk-go/aws/defaults"
 	"github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/awslabs/aws-sigv4-proxy/handler"
-	"github.com/aws/aws-sdk-go/aws/defaults"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"net/http"
 )
 
 var (
 	debug = kingpin.Flag("verbose", "enable additional logging").Short('v').Bool()
 	port  = kingpin.Flag("port", "port to serve http on").Default(":8080").String()
 	strip = kingpin.Flag("strip", "Headers to strip from incoming request").Short('s').Strings()
+	host  = kingpin.Arg("host", "Endpoint to proxy requests to").Required().String()
 )
 
 func main() {
@@ -31,9 +32,10 @@ func main() {
 	log.Fatal(
 		http.ListenAndServe(*port, &handler.Handler{
 			ProxyClient: &handler.ProxyClient{
-				Signer: signer,
-				Client: http.DefaultClient,
+				Signer:              signer,
+				Client:              http.DefaultClient,
 				StripRequestHeaders: *strip,
+				Host:                *host,
 			},
 		}),
 	)

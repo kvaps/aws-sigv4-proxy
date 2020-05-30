@@ -24,35 +24,31 @@ docker run --rm -ti \
   -e 'AWS_ACCESS_KEY_ID=<YOUR ACCESS KEY ID>' \
   -e 'AWS_SECRET_ACCESS_KEY=<YOUR SECRET ACCESS KEY>' \
   -p 8080:8080 \
-  aws-sigv4-proxy -v
+  aws-sigv4-proxy -v <remote_host_to_proxy_to>
 
 # Shared Credentials
 docker run --rm -ti \
   -v ~/.aws:/root/.aws \
   -p 8080:8080 \
   -e 'AWS_PROFILE=<SOME PROFILE>' \
-  aws-sigv4-proxy -v
+  aws-sigv4-proxy -v <remote_host_to_proxy_to>
 ```
 
 ## Examples
 
 S3
 ```
-# us-east-1
-curl -s -H 'host: s3.amazonaws.com' http://localhost:8080/<BUCKET_NAME>
-
-# other region
-curl -s -H 'host: s3.<BUCKET_REGION>.amazonaws.com' http://localhost:8080/<BUCKET_NAME>
+curl -s http://localhost:8080/<BUCKET_NAME>
 ```
 
 SQS
 ```sh
-curl -s -H 'host: sqs.<AWS_REGION>.amazonaws.com' 'http://localhost:8080/<AWS_ACCOUNT_ID>/<QUEUE_NAME>?Action=SendMessage&MessageBody=example'
+curl -s 'http://localhost:8080/<AWS_ACCOUNT_ID>/<QUEUE_NAME>?Action=SendMessage&MessageBody=example'
 ```
 
 API Gateway
 ```sh
-curl -H 'host: <REST_API_ID>.execute-api.<AWS_REGION>.amazonaws.com' http://localhost:8080/<STAGE>/<PATH>
+curl http://localhost:8080/<STAGE>/<PATH>
 ```
 
 Running the service and stripping out sigv2 authorization headers
@@ -61,7 +57,7 @@ docker run --rm -ti \
   -v ~/.aws:/root/.aws \
   -p 8080:8080 \
   -e 'AWS_PROFILE=<SOME PROFILE>' \
-  aws-sigv4-proxy -v -s Authorization
+  aws-sigv4-proxy -v -s Authorization <remote_host_to_proxy_to>
 ```
 
 ## Reference
